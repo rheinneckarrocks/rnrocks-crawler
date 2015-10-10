@@ -11,3 +11,6 @@
  */
 
 require_once(__DIR__ . '/../vendor/autoload.php');
+
+$cli = new \RNRocks\CliApplication(new \RNRocks\CrawlerCommand());
+$cli->run();
