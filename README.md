@@ -1,2 +1,7 @@
-# rnrocks-crawler
-Crawler to automate the event retrieval process.
+rheinneckarrocks.de Crawler
+===========================
+
+Lizenz
+------
+
+Apache 2.0, siehe LICENSE Datei.

@@ -1,0 +1,27 @@
+{
+  "name": "rnrocks/crawler",
+  "description": "Crawler to automate the event retrieval process",
+  "homepage": "https://github.com/rheinneckarrocks/rnrocks-crawler",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Stephan Hochdörfer",
+      "email": "S.Hochdoerfer@bitExpert.de",
+      "homepage": "http://www.bitExpert.de"
+    }
+  ],
+  "bin": [
+    "bin/crawler"
+  ],
+  "require": {
+    "symfony/console": "^2.7"
+  },
+  "autoload": {
+    "psr-4": {
+      "RNRocks\\": [
+        "src/RNRocks",
+        "tests/RNRocks"
+      ]
+    }
+  }
+}
