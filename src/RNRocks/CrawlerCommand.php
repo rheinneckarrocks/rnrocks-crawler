@@ -58,9 +58,9 @@ class CrawlerCommand extends Command
                     // write event to disk in the format sculpin expects it
                     $outputFile = $outputDir . '/' . $usergroupEvent->getDate() . '_' . $usergroup->getSlug() . '.md';
                     $content = '---'. "\n";
-                    $content .= 'title: '.$usergroupEvent->getTitle(). "\n";
+                    $content .= 'title: '.$this->strip($usergroupEvent->getTitle()). "\n";
                     $content .= 'date: '.$usergroupEvent->getDate(). "\n";
-                    $content .= 'location: '.$usergroupEvent->getLocation(). "\n";
+                    $content .= 'location: '.$this->strip($usergroupEvent->getLocation()). "\n";
                     $content .= 'link: '.$usergroupEvent->getLink(). "\n";
                     $content .= '---'. "\n";
 
@@ -69,5 +69,20 @@ class CrawlerCommand extends Command
                 }
             }
         }
+    }
+
+    /**
+     * Helper method to strip some not wanted characters from the given $string.
+     *
+     * @param $string
+     * @return string
+     */
+    private function strip($string)
+    {
+        $string = html_entity_decode($string);
+        $string = preg_replace('#\s{2,}#m', ' ', $string);
+        $string = str_replace(['"', "'", "\n", '#'], '', $string);
+
+        return $string;
     }
 }
