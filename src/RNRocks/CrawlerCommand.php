@@ -10,15 +10,29 @@
  */
 namespace RNRocks;
 
-use RNRocks\Repository\RepositoryFactory;
+use bitExpert\Disco\BeanFactory;
+use bitExpert\Disco\BeanFactoryAware;
 use RNRocks\Repository\SculpinUsergroupRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CrawlerCommand extends Command
+class CrawlerCommand extends Command implements BeanFactoryAware
 {
+    /**
+     * @var BeanFactory
+     */
+    protected $beanFactory;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setBeanFactory(BeanFactory $beanFactory)
+    {
+        $this->beanFactory = $beanFactory;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -49,7 +63,12 @@ class CrawlerCommand extends Command
             /** @var Usergroup $usergroup */
             $output->writeln(sprintf('Processing user group "%s"', $usergroup->getSlug()));
 
-            $eventRepository = RepositoryFactory::create($usergroup->getRepoType());
+            if (!$this->beanFactory->has($usergroup->getRepoType())) {
+                $output->writeln(sprintf('No implementation found for repository type "%s".', $usergroup->getRepoType()));
+                continue;
+            }
+
+            $eventRepository = $this->beanFactory->get($usergroup->getRepoType());
             $usergroupEvents = $eventRepository->getEvents($usergroup->getEventLink());
             $output->writeln(sprintf('Found "%s" events for user group "%s"', count($usergroupEvents), $usergroup->getSlug()));
             foreach ($usergroupEvents as $usergroupEvent) {

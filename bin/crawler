@@ -10,18 +10,20 @@
  * file that was distributed with this source code.
  */
 
+use RNRocks\CrawlerConfiguration;
+
 require_once(__DIR__ . '/../vendor/autoload.php');
 
 // load configuration
 $dotenv = new Dotenv\Dotenv(dirname(__DIR__));
 $dotenv->load();
 
-// configure Repository Factory
-\RNRocks\Repository\RepositoryFactory::initialize(
-    new \RNRocks\Repository\AtomFeedEventRepository(),
-    new \RNRocks\Repository\RssFeedEventRepository(),
-    new \RNRocks\Repository\MeetupEventRepository($_ENV['MEETUP_API_KEY'])
-);
+$beanFactory = new \bitExpert\Disco\AnnotationBeanFactory(CrawlerConfiguration::class, $_ENV);
+\bitExpert\Disco\BeanFactoryRegistry::register($beanFactory);
 
-$cli = new \RNRocks\CliApplication(new \RNRocks\CrawlerCommand());
-$cli->run();
+try {
+    $cli = $beanFactory->get('application');
+    $cli->run();
+} catch (\Exception $e) {
+    echo $e->getMessage()."\n";
+}
