@@ -18,7 +18,8 @@
     "dms/meetup-api-client": "^2.0",
     "vlucas/phpdotenv": "^2.0",
     "phpdocumentor/reflection-common": "^1.0@dev",
-    "bitexpert/disco": "^0.1.2"
+    "bitexpert/disco": "^0.1.2",
+    "om/icalparser": "^0.1.1"
   },
   "autoload": {
     "psr-4": {
