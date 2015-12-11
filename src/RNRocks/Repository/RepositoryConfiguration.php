@@ -15,6 +15,7 @@ use \bitExpert\Disco\Annotations\Configuration;
 use bitExpert\Disco\Annotations\Parameter;
 use bitExpert\Disco\Annotations\Parameters;
 use \RNRocks\Repository\AtomFeedEventRepository;
+use RNRocks\Repository\IcsEventRepository;
 use \RNRocks\Repository\RssFeedEventRepository;
 use \RNRocks\Repository\MeetupEventRepository;
 
@@ -53,6 +54,16 @@ trait RepositoryConfiguration
     public function meetup($key = '')
     {
         $bean = new MeetupEventRepository($key);
+        return $bean;
+    }
+
+    /**
+     * @Bean
+     * @return \RNRocks\Repository\IcsEventRepository
+     */
+    public function ics()
+    {
+        $bean = new IcsEventRepository();
         return $bean;
     }
 }
