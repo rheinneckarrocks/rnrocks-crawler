@@ -65,7 +65,8 @@ class MeetupEventRepository implements EventRepository
     private function extractGroupNameFromUrl($url)
     {
         $urlPath = parse_url(trim($url, '/'), PHP_URL_PATH);
-        $groupUrlName = array_pop(explode('/', $urlPath));
+        $urlPath = explode('/', $urlPath);
+        $groupUrlName = array_pop($urlPath);
         return $groupUrlName;
     }
 }
