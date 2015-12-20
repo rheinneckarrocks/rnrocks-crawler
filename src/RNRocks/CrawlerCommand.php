@@ -68,9 +68,20 @@ class CrawlerCommand extends Command implements BeanFactoryAware
                 continue;
             }
 
+            $output->writeln(sprintf('Removing events for user group "%s"', $usergroup->getSlug()));
+            $removedEvents = 0;
+            $iterator = new \DirectoryIterator($outputDir);
+            foreach ($iterator as $fileInfo) {
+                if (false !== strpos($fileInfo->getFilename(), '_'.$usergroup->getSlug())) {
+                    @unlink($fileInfo->getRealPath());
+                    $removedEvents++;
+                }
+            }
+            $output->writeln(sprintf('Removed "%s" events for user group "%s"', $removedEvents, $usergroup->getSlug()));
+
             $eventRepository = $this->beanFactory->get($usergroup->getRepoType());
             $usergroupEvents = $eventRepository->getEvents($usergroup->getEventLink());
-            $output->writeln(sprintf('Found "%s" events for user group "%s"', count($usergroupEvents), $usergroup->getSlug()));
+            $output->writeln(sprintf('Found "%s" new events for user group "%s"', count($usergroupEvents), $usergroup->getSlug()));
             foreach ($usergroupEvents as $usergroupEvent) {
                 /** @var Event $usergroupEvent */
                 if (strtotime($usergroupEvent->getDate()) >= $curDate) {
@@ -88,6 +99,24 @@ class CrawlerCommand extends Command implements BeanFactoryAware
                 }
             }
         }
+
+        $output->writeln('Removing past non-usergroup events');
+        $removedEvents = 0;
+        // clean up old events that are not connected to a specific user group (e.g. a conference)
+        $yesterday = strtotime('-1 day');
+        foreach ($iterator as $fileInfo) {
+            $matches = [];
+            if (preg_match('#^([0-9]{4}-[0-9]{1,2}-[0-9]{1,2})_.+$#', $fileInfo->getFilename(), $matches)) {
+                if (isset($matches[1])) {
+                    if (strtotime($matches[1]) <= $yesterday) {
+                        @unlink($fileInfo->getRealPath());
+                        $removedEvents++;
+                    }
+                }
+            }
+        }
+
+        $output->writeln(sprintf('Removed "%s" past events', $removedEvents));
     }
 
     /**
