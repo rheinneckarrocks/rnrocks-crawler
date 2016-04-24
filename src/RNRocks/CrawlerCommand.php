@@ -57,6 +57,10 @@ class CrawlerCommand extends Command implements BeanFactoryAware
         $outputDir = $input->getArgument('outputDir');
 
         $curDate = strtotime(date('Y-m-d'));
+        // limit the upper bound date for events, esp. ics resources seem to contain events in the far distant future.
+        // Simply ignore those events...
+        $maxDate = strtotime("+1 year", $curDate);
+
         $usergroupRepository = new SculpinUsergroupRepository($sourceDir);
         $usergroups = $usergroupRepository->getUsergroups();
         foreach ($usergroups as $usergroup) {
@@ -84,7 +88,7 @@ class CrawlerCommand extends Command implements BeanFactoryAware
             $output->writeln(sprintf('Found "%s" new events for user group "%s"', count($usergroupEvents), $usergroup->getSlug()));
             foreach ($usergroupEvents as $usergroupEvent) {
                 /** @var Event $usergroupEvent */
-                if (strtotime($usergroupEvent->getDate()) >= $curDate) {
+                if ((strtotime($usergroupEvent->getDate()) >= $curDate) && (strtotime($usergroupEvent->getDate()) <= $maxDate)) {
                     // write event to disk in the format sculpin expects it
                     $outputFile = $outputDir . '/' . $usergroupEvent->getDate() . '_' . $usergroup->getSlug() . '.md';
                     $content = '---'. "\n";
