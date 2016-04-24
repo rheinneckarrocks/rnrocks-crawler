@@ -31,7 +31,7 @@ class IcsEventRepository implements EventRepository
                 $venue = $event['LOCATION'];
             }
 
-            $events[] = new Event($event['SUMMARY'], $event['DTSTART']->format('Y-m-d'), $event['DESCRIPTION'], $venue);
+            $events[] = new Event($event['SUMMARY'], $event['DTSTART']->format('Y-m-d'), $event['URL'], $venue);
         }
 
         return $events;
