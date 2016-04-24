@@ -12,6 +12,7 @@ namespace RNRocks\Repository;
 
 use DirectoryIterator;
 use RNRocks\Usergroup;
+use Symfony\Component\Yaml\Parser;
 
 class SculpinUsergroupRepository implements UsergroupRepository
 {
@@ -19,6 +20,10 @@ class SculpinUsergroupRepository implements UsergroupRepository
      * @var string
      */
     protected $folder;
+    /**
+     * @var Parser
+     */
+    protected $yamlParser;
 
     /**
      * Creates a new {@link \RNRocks\Repository\SculpinUsergroupRepository}.
@@ -28,6 +33,7 @@ class SculpinUsergroupRepository implements UsergroupRepository
     public function __construct($folder)
     {
         $this->folder = $folder;
+        $this->yamlParser = new Parser();
     }
 
     /**
@@ -40,37 +46,29 @@ class SculpinUsergroupRepository implements UsergroupRepository
         $iterator = new DirectoryIterator($this->folder);
         foreach($iterator as $file) {
             /** @var DirectoryIterator $file */
-            if (false !== strpos($file->getBasename(), '.md')) {
+            if (false !== strpos($file->getBasename(), '.html')) {
                 $content = file_get_contents($file->getRealPath());
-                if (false !== preg_match_all('#^([a-zA-Z0-9]+?):\W+(.+)$#m', $content, $matches, PREG_SET_ORDER))
-                {
-                    $slug = null;
-                    $type = null;
-                    $eventLink = null;
-                    foreach($matches as $match) {
-                        if(!isset($match[1])) {
-                            continue;
-                        }
-
-                        if((null === $slug) && ($match[1] === 'slug')) {
-                            $slug = trim($match[2]);
-                        }
-
-                        if((null === $type) && ($match[1] === 'type')) {
-                            $type = strtolower(trim($match[2]));
-                        }
-
-                        if((null === $eventLink) && ($match[1] === 'eventLink')) {
-                            $eventLink = trim($match[2]);
-                        }
-                    }
-
-                    if (null === $slug || null === $type || null === $eventLink) {
-                        continue;
-                    }
-
-                    $usergroups[] = new Usergroup($slug, $type, $eventLink);
+                if (empty($content)) {
+                    continue;
                 }
+                
+                // "extract" the YAML Parts from the input file
+                $content = explode('---', $content);
+                if (!isset($content[1]) || count($content) !== 3) {
+                    continue;
+                }
+
+                $content = $content[1];
+                $values = $this->yamlParser->parse($content);
+
+                $slug = isset($values['title']) ? $values['title'] : null;
+                $type = isset($values['eventFeed'], $values['eventFeed']['type']) ? $values['eventFeed']['type'] : null;
+                $eventLink = isset($values['eventFeed'], $values['eventFeed']['url']) ? $values['eventFeed']['url'] : null;
+                if (null === $slug || null === $type || null === $eventLink) {
+                    continue;
+                }
+
+                $usergroups[] = new Usergroup($slug, $type, $eventLink);
             }
         }
 
