@@ -92,6 +92,7 @@ class CrawlerCommand extends Command implements BeanFactoryAware
                     $content .= 'date: '.$usergroupEvent->getDate(). "\n";
                     $content .= 'location: '.$this->strip($usergroupEvent->getLocation()). "\n";
                     $content .= 'link: '.$usergroupEvent->getLink(). "\n";
+                    $content .= 'usergroup: '.$usergroup->getSlug(). "\n";
                     $content .= '---'. "\n";
 
                     file_put_contents($outputFile, $content);
