@@ -47,13 +47,14 @@ trait RepositoryConfiguration
     /**
      * @Bean
      * @Parameters({
-     *  @Parameter({"name" = "MEETUP_API_KEY"})
+     *  @Parameter({"name" = "MEETUP_API_KEY"}),
+     *  @Parameter({"name" = "MEETUP_API_SECRET"})
      * })
      * @return \RNRocks\Repository\MeetupEventRepository
      */
-    public function meetup($key = '')
+    public function meetup($key = '', $secret = '')
     {
-        $bean = new MeetupEventRepository($key);
+        $bean = new MeetupEventRepository($key, $secret);
         return $bean;
     }
 
